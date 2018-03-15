@@ -1531,6 +1531,8 @@ pub mod root {
         pub member_types_size: usize,
         pub array: *mut u32,
         pub array_size: usize,
+        pub vecsize: u32,
+        pub columns: u32,
     }
     impl Clone for ScType {
         fn clone(&self) -> Self { *self }

@@ -1,4 +1,4 @@
-#pragma warning(disable : 4996 4101)
+// #pragma warning(disable : 4996 4101)
 #include "vendor/SPIRV-Cross/spirv_cross_util.hpp"
 #include "vendor/SPIRV-Cross/spirv_hlsl.hpp"
 #include "vendor/SPIRV-Cross/spirv_msl.hpp"
@@ -280,6 +280,8 @@ ScInternalResult sc_internal_compiler_get_type(const ScInternalCompilerBase *com
             ty->type = type.basetype;
             ty->member_types_size = member_types_size;
             ty->array_size = array_size;
+            ty->vecsize = type.vecsize;
+            ty->columns = type.columns;
 
             if (member_types_size > 0)
             {

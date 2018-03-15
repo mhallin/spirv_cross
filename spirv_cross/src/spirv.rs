@@ -121,49 +121,56 @@ pub struct ShaderResources {
 }
 
 #[derive(Debug, Clone)]
+pub struct Dims {
+    pub vecsize: u32,
+    pub columns: u32
+}
+
+#[derive(Debug, Clone)]
 pub enum Type {
     // TODO: Add missing fields to relevant variants from SPIRType
     Unknown,
     Void,
     Boolean {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Char {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Int {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     UInt {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Int64 {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     UInt64 {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     AtomicCounter {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Float {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Double {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Struct {
         member_types: Vec<u32>,
         array: Vec<u32>,
+        dims: Dims,
     },
     Image {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     SampledImage {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Sampler {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
 }
 

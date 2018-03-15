@@ -98,6 +98,8 @@ typedef struct ScType
     size_t member_types_size;
     uint32_t *array;
     size_t array_size;
+    uint32_t vecsize;
+    uint32_t columns;
 } ScType;
 
 ScInternalResult sc_internal_get_latest_exception_message(const char **message);

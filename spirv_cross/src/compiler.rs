@@ -98,28 +98,30 @@ impl spirv::Type {
         ty: spirv_cross::SPIRType_BaseType,
         member_types: Vec<u32>,
         array: Vec<u32>,
+        dims: spirv::Dims,
     ) -> Type {
         use bindings::root::spirv_cross::SPIRType_BaseType as b;
         use spirv::Type::*;
         match ty {
             b::Unknown => Unknown,
             b::Void => Void,
-            b::Boolean => Boolean { array },
-            b::Char => Char { array },
-            b::Int => Int { array },
-            b::UInt => UInt { array },
-            b::Int64 => Int64 { array },
-            b::UInt64 => UInt64 { array },
-            b::AtomicCounter => AtomicCounter { array },
-            b::Float => Float { array },
-            b::Double => Double { array },
+            b::Boolean => Boolean { array, dims },
+            b::Char => Char { array, dims },
+            b::Int => Int { array, dims },
+            b::UInt => UInt { array, dims },
+            b::Int64 => Int64 { array, dims },
+            b::UInt64 => UInt64 { array, dims },
+            b::AtomicCounter => AtomicCounter { array, dims },
+            b::Float => Float { array, dims },
+            b::Double => Double { array, dims },
             b::Struct => Struct {
                 member_types,
                 array,
+                dims,
             },
-            b::Image => Image { array },
-            b::SampledImage => SampledImage { array },
-            b::Sampler => Sampler { array },
+            b::Image => Image { array, dims },
+            b::SampledImage => SampledImage { array, dims },
+            b::Sampler => Sampler { array, dims },
         }
     }
 }
@@ -313,7 +315,8 @@ impl<TTargetData> Compiler<TTargetData> {
             let member_types =
                 slice::from_raw_parts(raw.member_types, raw.member_types_size).to_vec();
             let array = slice::from_raw_parts(raw.array, raw.array_size).to_vec();
-            let result = Type::from_raw(raw.type_, member_types, array);
+            let dims = spirv::Dims { vecsize: raw.vecsize, columns: raw.columns };
+            let result = Type::from_raw(raw.type_, member_types, array, dims);
 
             if raw.member_types_size > 0 {
                 check!(sc_internal_free_pointer(raw.member_types as *mut c_void));
