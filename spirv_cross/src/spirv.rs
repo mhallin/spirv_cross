@@ -153,7 +153,7 @@ pub enum Type {
         array: Vec<u32>, dims: Dims,
     },
     Half {
-        array: Vec<u32>,
+        array: Vec<u32>, dims: Dims,
     },
     Float {
         array: Vec<u32>, dims: Dims,
