@@ -8,7 +8,7 @@ pub mod root {
         #[allow(unused_imports)]
         use self::super::super::root;
         pub type Id = ::std::os::raw::c_uint;
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum SourceLanguage {
             SourceLanguageUnknown = 0,
@@ -19,7 +19,7 @@ pub mod root {
             SourceLanguageHLSL = 5,
             SourceLanguageMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum ExecutionModel {
             ExecutionModelVertex = 0,
@@ -31,7 +31,7 @@ pub mod root {
             ExecutionModelKernel = 6,
             ExecutionModelMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum AddressingModel {
             AddressingModelLogical = 0,
@@ -39,7 +39,7 @@ pub mod root {
             AddressingModelPhysical64 = 2,
             AddressingModelMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum MemoryModel {
             MemoryModelSimple = 0,
@@ -47,7 +47,7 @@ pub mod root {
             MemoryModelOpenCL = 2,
             MemoryModelMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum ExecutionMode {
             ExecutionModeInvocations = 0,
@@ -92,7 +92,7 @@ pub mod root {
             ExecutionModeStencilRefReplacingEXT = 5027,
             ExecutionModeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum StorageClass {
             StorageClassUniformConstant = 0,
@@ -110,7 +110,7 @@ pub mod root {
             StorageClassStorageBuffer = 12,
             StorageClassMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum Dim {
             Dim1D = 0,
@@ -122,7 +122,7 @@ pub mod root {
             DimSubpassData = 6,
             DimMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum SamplerAddressingMode {
             SamplerAddressingModeNone = 0,
@@ -132,14 +132,14 @@ pub mod root {
             SamplerAddressingModeRepeatMirrored = 4,
             SamplerAddressingModeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum SamplerFilterMode {
             SamplerFilterModeNearest = 0,
             SamplerFilterModeLinear = 1,
             SamplerFilterModeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum ImageFormat {
             ImageFormatUnknown = 0,
@@ -184,7 +184,7 @@ pub mod root {
             ImageFormatR8ui = 39,
             ImageFormatMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum ImageChannelOrder {
             ImageChannelOrderR = 0,
@@ -209,7 +209,7 @@ pub mod root {
             ImageChannelOrderABGR = 19,
             ImageChannelOrderMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum ImageChannelDataType {
             ImageChannelDataTypeSnormInt8 = 0,
@@ -231,7 +231,7 @@ pub mod root {
             ImageChannelDataTypeUnormInt101010_2 = 16,
             ImageChannelDataTypeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum ImageOperandsShift {
             ImageOperandsBiasShift = 0,
@@ -307,8 +307,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct ImageOperandsMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct ImageOperandsMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum FPFastMathModeShift {
             FPFastMathModeNotNaNShift = 0,
@@ -372,8 +372,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct FPFastMathModeMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct FPFastMathModeMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum FPRoundingMode {
             FPRoundingModeRTE = 0,
@@ -382,14 +382,14 @@ pub mod root {
             FPRoundingModeRTN = 3,
             FPRoundingModeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum LinkageType {
             LinkageTypeExport = 0,
             LinkageTypeImport = 1,
             LinkageTypeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum AccessQualifier {
             AccessQualifierReadOnly = 0,
@@ -397,7 +397,7 @@ pub mod root {
             AccessQualifierReadWrite = 2,
             AccessQualifierMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum FunctionParameterAttribute {
             FunctionParameterAttributeZext = 0,
@@ -410,7 +410,7 @@ pub mod root {
             FunctionParameterAttributeNoReadWrite = 7,
             FunctionParameterAttributeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum Decoration {
             DecorationRelaxedPrecision = 0,
@@ -478,7 +478,7 @@ pub mod root {
             BuiltIn::BuiltInSubgroupLeMask;
         pub const BuiltIn_BuiltInSubgroupLtMaskKHR: root::spv::BuiltIn =
             BuiltIn::BuiltInSubgroupLtMask;
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum BuiltIn {
             BuiltInPosition = 0,
@@ -548,7 +548,7 @@ pub mod root {
             BuiltInFullyCoveredEXT = 5264,
             BuiltInMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum SelectionControlShift {
             SelectionControlFlattenShift = 0,
@@ -601,8 +601,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct SelectionControlMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct SelectionControlMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum LoopControlShift {
             LoopControlUnrollShift = 0,
@@ -662,8 +662,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct LoopControlMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct LoopControlMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum FunctionControlShift {
             FunctionControlInlineShift = 0,
@@ -723,8 +723,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct FunctionControlMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct FunctionControlMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum MemorySemanticsShift {
             MemorySemanticsAcquireShift = 1,
@@ -808,8 +808,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct MemorySemanticsMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct MemorySemanticsMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum MemoryAccessShift {
             MemoryAccessVolatileShift = 0,
@@ -865,8 +865,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct MemoryAccessMask(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct MemoryAccessMask(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum Scope {
             ScopeCrossDevice = 0,
@@ -876,7 +876,7 @@ pub mod root {
             ScopeInvocation = 4,
             ScopeMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum GroupOperation {
             GroupOperationReduce = 0,
@@ -933,8 +933,8 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct KernelEnqueueFlags(pub ::std::os::raw::c_int);
-        #[repr(i32)]
+        pub struct KernelEnqueueFlags(pub ::std::os::raw::c_uint);
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum KernelProfilingInfoShift {
             KernelProfilingInfoCmdExecTimeShift = 0,
@@ -984,7 +984,7 @@ pub mod root {
         }
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct KernelProfilingInfoMask(pub ::std::os::raw::c_int);
+        pub struct KernelProfilingInfoMask(pub ::std::os::raw::c_uint);
         pub const Capability_CapabilityStorageUniformBufferBlock16:
                   root::spv::Capability =
             Capability::CapabilityStorageBuffer16BitAccess;
@@ -994,7 +994,7 @@ pub mod root {
         pub const Capability_CapabilityShaderViewportIndexLayerNV:
                   root::spv::Capability =
             Capability::CapabilityShaderViewportIndexLayerEXT;
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum Capability {
             CapabilityMatrix = 0,
@@ -1094,7 +1094,7 @@ pub mod root {
             CapabilitySubgroupImageBlockIOINTEL = 5570,
             CapabilityMax = 2147483647,
         }
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum Op {
             OpNop = 0,
@@ -1469,16 +1469,12 @@ pub mod root {
     pub mod std {
         #[allow(unused_imports)]
         use self::super::super::root;
-        pub mod _DEPRECATE_TR1_NAMESPACE {
-            #[allow(unused_imports)]
-            use self::super::super::super::root;
-        }
-        pub type string = [u64; 4usize];
+        pub type string = [u64; 3usize];
     }
     pub mod spirv_cross {
         #[allow(unused_imports)]
         use self::super::super::root;
-        #[repr(i32)]
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
         pub enum SPIRType_BaseType {
             Unknown = 0,
@@ -1541,7 +1537,7 @@ pub mod root {
     pub type ScInternalCompilerHlsl = ::std::os::raw::c_void;
     pub type ScInternalCompilerMsl = ::std::os::raw::c_void;
     pub type ScInternalCompilerGlsl = ::std::os::raw::c_void;
-    #[repr(i32)]
+    #[repr(u32)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
     pub enum ScInternalResult {
         Success = 0,
@@ -1562,6 +1558,16 @@ pub mod root {
     }
     #[repr(C)]
     #[derive(Debug, Copy)]
+    pub struct ScCombinedImageSampler {
+        pub combined_id: u32,
+        pub image_id: u32,
+        pub sampler_id: u32,
+    }
+    impl Clone for ScCombinedImageSampler {
+        fn clone(&self) -> Self { *self }
+    }
+    #[repr(C)]
+    #[derive(Debug, Copy)]
     pub struct ScHlslRootConstant {
         pub start: u32,
         pub end: u32,
@@ -1575,6 +1581,8 @@ pub mod root {
     #[derive(Debug, Copy)]
     pub struct ScHlslCompilerOptions {
         pub shader_model: i32,
+        pub point_size_compat: bool,
+        pub point_coord_compat: bool,
         pub vertex_transform_clip_space: bool,
         pub vertex_invert_y: bool,
     }
@@ -1586,6 +1594,11 @@ pub mod root {
     pub struct ScMslCompilerOptions {
         pub vertex_transform_clip_space: bool,
         pub vertex_invert_y: bool,
+        pub platform: u8,
+        pub version: u32,
+        pub enable_point_size_builtin: bool,
+        pub resolve_specialized_array_lengths: bool,
+        pub disable_rasterization: bool,
     }
     impl Clone for ScMslCompilerOptions {
         fn clone(&self) -> Self { *self }
@@ -1703,6 +1716,13 @@ pub mod root {
          -> root::ScInternalResult;
     }
     extern "C" {
+        pub fn sc_internal_compiler_msl_get_is_rasterization_disabled(compiler:
+                                                                          *const root::ScInternalCompilerMsl,
+                                                                      is_rasterization_disabled:
+                                                                          *mut bool)
+         -> root::ScInternalResult;
+    }
+    extern "C" {
         pub fn sc_internal_compiler_msl_compile(compiler:
                                                     *const root::ScInternalCompilerBase,
                                                 shader:
@@ -1734,6 +1754,15 @@ pub mod root {
          -> root::ScInternalResult;
     }
     extern "C" {
+        pub fn sc_internal_compiler_glsl_get_combined_image_samplers(compiler:
+                                                                         *const root::ScInternalCompilerBase,
+                                                                     samplers:
+                                                                         *mut *const root::ScCombinedImageSampler,
+                                                                     size:
+                                                                         *mut usize)
+         -> root::ScInternalResult;
+    }
+    extern "C" {
         pub fn sc_internal_compiler_get_decoration(compiler:
                                                        *const root::ScInternalCompilerBase,
                                                    result: *mut u32, id: u32,
@@ -1748,6 +1777,22 @@ pub mod root {
                                                    decoration:
                                                        root::spv::Decoration,
                                                    argument: u32)
+         -> root::ScInternalResult;
+    }
+    extern "C" {
+        pub fn sc_internal_compiler_unset_decoration(compiler:
+                                                         *const root::ScInternalCompilerBase,
+                                                     id: u32,
+                                                     decoration:
+                                                         root::spv::Decoration)
+         -> root::ScInternalResult;
+    }
+    extern "C" {
+        pub fn sc_internal_compiler_set_name(compiler:
+                                                 *const root::ScInternalCompilerBase,
+                                             id: u32,
+                                             name:
+                                                 *const ::std::os::raw::c_char)
          -> root::ScInternalResult;
     }
     extern "C" {
@@ -1853,6 +1898,13 @@ pub mod root {
                                                               location: u32,
                                                               name:
                                                                   *const ::std::os::raw::c_char)
+         -> root::ScInternalResult;
+    }
+    extern "C" {
+        pub fn sc_internal_compiler_get_work_group_size_specialization_constants(compiler:
+                                                                                     *const root::ScInternalCompilerBase,
+                                                                                 constants:
+                                                                                     *mut *mut root::ScSpecializationConstant)
          -> root::ScInternalResult;
     }
     extern "C" {

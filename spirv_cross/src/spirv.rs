@@ -1,9 +1,17 @@
-use ErrorCode;
 use compiler;
 use std::marker::PhantomData;
+use ErrorCode;
 
 /// A stage or compute kernel.
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
+pub struct CombinedImageSampler {
+    pub combined_id: u32,
+    pub image_id: u32,
+    pub sampler_id: u32,
+}
+
+/// A stage or compute kernel.
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ExecutionModel {
     Vertex,
     TessellationControl,
@@ -81,7 +89,7 @@ pub struct WorkGroupSize {
 }
 
 /// An entry point for a SPIR-V module.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 pub struct EntryPoint {
     pub name: String,
     pub execution_model: ExecutionModel,
@@ -89,7 +97,7 @@ pub struct EntryPoint {
 }
 
 /// A resource.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 pub struct Resource {
     pub id: u32,
     pub type_id: u32,
@@ -98,10 +106,18 @@ pub struct Resource {
 }
 
 /// Specialization constant reference.
-#[derive(Debug, Clone)]
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 pub struct SpecializationConstant {
     pub id: u32,
     pub constant_id: u32,
+}
+
+/// Work group size specialization constants.
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
+pub struct WorkGroupSizeSpecializationConstants {
+    pub x: SpecializationConstant,
+    pub y: SpecializationConstant,
+    pub z: SpecializationConstant,
 }
 
 /// Shader resources.
@@ -224,6 +240,20 @@ where
         self.compiler.get_decoration(id, decoration)
     }
 
+    /// Sets a name.
+    pub fn set_name(&mut self, id: u32, name: &str) -> Result<(), ErrorCode> {
+        self.compiler.set_name(id, name)
+    }
+
+    /// Unsets a decoration.
+    pub fn unset_decoration(
+        &mut self,
+        id: u32,
+        decoration: Decoration,
+    ) -> Result<(), ErrorCode> {
+        self.compiler.unset_decoration(id, decoration)
+    }
+
     /// Sets a decoration.
     pub fn set_decoration(
         &mut self,
@@ -321,6 +351,13 @@ where
     ) -> Result<(), ErrorCode> {
         self.compiler
             .rename_interface_variable(resources, location, name)
+    }
+
+    /// Gets work group size specialization constants.
+    pub fn get_work_group_size_specialization_constants(
+        &self,
+    ) -> Result<WorkGroupSizeSpecializationConstants, ErrorCode> {
+        self.compiler.get_work_group_size_specialization_constants()
     }
 
     /// Parses a module into `Ast`.

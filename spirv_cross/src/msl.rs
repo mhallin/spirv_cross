@@ -1,17 +1,17 @@
-use {compiler, spirv, ErrorCode};
 use bindings::root::*;
-use std::ptr;
-use std::marker::PhantomData;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::ffi::CStr;
+use std::marker::PhantomData;
+use std::ptr;
+use {compiler, spirv, ErrorCode};
 
 /// A MSL target.
 #[derive(Debug, Clone)]
 pub enum Target {}
 
 pub struct TargetData {
-    pub(crate) vertex_attribute_overrides: HashMap<VertexAttributeLocation, VertexAttribute>,
-    pub(crate) resource_binding_overrides: HashMap<ResourceBindingLocation, ResourceBinding>,
+    vertex_attribute_overrides: Vec<spirv_cross::MSLVertexAttr>,
+    resource_binding_overrides: Vec<spirv_cross::MSLResourceBinding>,
 }
 
 impl spirv::Target for Target {
@@ -19,11 +19,11 @@ impl spirv::Target for Target {
 }
 
 /// Location of a vertex attribute to override
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct VertexAttributeLocation(pub u32);
 
 /// Vertex attribute description for overriding
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct VertexAttribute {
     pub buffer_id: u32,
     pub offset: u32,
@@ -33,7 +33,7 @@ pub struct VertexAttribute {
 }
 
 /// Location of a resource binding to override
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ResourceBindingLocation {
     pub stage: spirv::ExecutionModel,
     pub desc_set: u32,
@@ -41,20 +41,54 @@ pub struct ResourceBindingLocation {
 }
 
 /// Resource binding description for overriding
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct ResourceBinding {
-    pub resource_id: u32,
+    pub buffer_id: u32,
+    pub texture_id: u32,
+    pub sampler_id: u32,
     pub force_used: bool,
 }
 
-#[derive(Debug, Clone)]
+/// A MSL shader platform.
+#[repr(u8)]
+#[allow(non_snake_case, non_camel_case_types)]
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
+pub enum Platform {
+    iOS = 0,
+    macOS = 1,
+}
+
+/// A MSL shader model version.
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
+pub enum Version {
+    V1_0,
+    V1_1,
+    V1_2,
+    V2_0,
+    V2_1,
+}
+
+impl Version {
+    fn as_raw(&self) -> u32 {
+        use self::Version::*;
+        match *self {
+            V1_0 => 10000,
+            V1_1 => 10100,
+            V1_2 => 10200,
+            V2_0 => 20000,
+            V2_1 => 20100,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct CompilerVertexOptions {
     pub invert_y: bool,
     pub transform_clip_space: bool,
 }
 
 impl Default for CompilerVertexOptions {
-    fn default() -> CompilerVertexOptions {
+    fn default() -> Self {
         CompilerVertexOptions {
             invert_y: false,
             transform_clip_space: false,
@@ -63,13 +97,24 @@ impl Default for CompilerVertexOptions {
 }
 
 /// MSL compiler options.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct CompilerOptions {
+    /// The target platform.
+    pub platform: Platform,
+    /// The target MSL version.
+    pub version: Version,
+    /// Vertex compiler options.
     pub vertex: CompilerVertexOptions,
+    /// Whether the built-in point size should be enabled.
+    pub enable_point_size_builtin: bool,
+    /// Whether array lengths should be resolved instead of specialized.
+    pub resolve_specialized_array_lengths: bool,
+    /// Whether rasterization should be enabled.
+    pub enable_rasterization: bool,
     /// MSL resource bindings overrides.
-    pub resource_binding_overrides: HashMap<ResourceBindingLocation, ResourceBinding>,
+    pub resource_binding_overrides: BTreeMap<ResourceBindingLocation, ResourceBinding>,
     /// MSL vertex attribute overrides.
-    pub vertex_attribute_overrides: HashMap<VertexAttributeLocation, VertexAttribute>,
+    pub vertex_attribute_overrides: BTreeMap<VertexAttributeLocation, VertexAttribute>,
 }
 
 impl CompilerOptions {
@@ -77,14 +122,24 @@ impl CompilerOptions {
         ScMslCompilerOptions {
             vertex_invert_y: self.vertex.invert_y,
             vertex_transform_clip_space: self.vertex.transform_clip_space,
+            platform: self.platform as _,
+            version: self.version.as_raw(),
+            enable_point_size_builtin: self.enable_point_size_builtin,
+            resolve_specialized_array_lengths: self.resolve_specialized_array_lengths,
+            disable_rasterization: !self.enable_rasterization,
         }
     }
 }
 
 impl Default for CompilerOptions {
-    fn default() -> CompilerOptions {
+    fn default() -> Self {
         CompilerOptions {
+            platform: Platform::macOS,
+            version: Version::V1_2,
             vertex: CompilerVertexOptions::default(),
+            enable_point_size_builtin: true,
+            resolve_specialized_array_lengths: true,
+            enable_rasterization: true,
             resource_binding_overrides: Default::default(),
             vertex_attribute_overrides: Default::default(),
         }
@@ -93,28 +148,24 @@ impl Default for CompilerOptions {
 
 impl<'a> spirv::Parse<Target> for spirv::Ast<Target> {
     fn parse(module: &spirv::Module) -> Result<Self, ErrorCode> {
-        let compiler = {
-            let mut compiler = ptr::null_mut();
-            unsafe {
-                check!(sc_internal_compiler_msl_new(
-                    &mut compiler,
-                    module.words.as_ptr() as *const u32,
-                    module.words.len() as usize
-                ));
-            }
-
-            compiler::Compiler {
-                sc_compiler: compiler,
-                target_data: TargetData {
-                    resource_binding_overrides: Default::default(),
-                    vertex_attribute_overrides: Default::default(),
-                },
-                has_been_compiled: false,
-            }
-        };
+        let mut sc_compiler = ptr::null_mut();
+        unsafe {
+            check!(sc_internal_compiler_msl_new(
+                &mut sc_compiler,
+                module.words.as_ptr(),
+                module.words.len(),
+            ));
+        }
 
         Ok(spirv::Ast {
-            compiler,
+            compiler: compiler::Compiler {
+                sc_compiler,
+                target_data: TargetData {
+                    resource_binding_overrides: Vec::new(),
+                    vertex_attribute_overrides: Vec::new(),
+                },
+                has_been_compiled: false,
+            },
             target_type: PhantomData,
         })
     }
@@ -133,24 +184,23 @@ impl spirv::Compile<Target> for spirv::Ast<Target> {
             ));
         }
 
-        self.compiler.target_data.resource_binding_overrides =
-            options.resource_binding_overrides.clone();
-        self.compiler.target_data.vertex_attribute_overrides =
-            options.vertex_attribute_overrides.clone();
+        self.compiler.target_data.resource_binding_overrides.clear();
+        self.compiler.target_data.resource_binding_overrides.extend(options
+            .resource_binding_overrides
+            .iter()
+            .map(|(loc, res)| spirv_cross::MSLResourceBinding {
+                stage: loc.stage.as_raw(),
+                desc_set: loc.desc_set,
+                binding: loc.binding,
+                msl_buffer: res.buffer_id,
+                msl_texture: res.texture_id,
+                msl_sampler: res.sampler_id,
+                used_by_shader: res.force_used,
+            })
+        );
 
-        Ok(())
-    }
-
-    /// Generate MSL shader from the AST.
-    fn compile(&mut self) -> Result<String, ErrorCode> {
-        self.compile_internal()
-    }
-}
-
-impl spirv::Ast<Target> {
-    fn compile_internal(&self) -> Result<String, ErrorCode> {
-        let vat_overrides = self.compiler
-            .target_data
+        self.compiler.target_data.vertex_attribute_overrides.clear();
+        self.compiler.target_data.vertex_attribute_overrides.extend(options
             .vertex_attribute_overrides
             .iter()
             .map(|(loc, vat)| spirv_cross::MSLVertexAttr {
@@ -164,23 +214,21 @@ impl spirv::Ast<Target> {
                 },
                 used_by_shader: vat.force_used,
             })
-            .collect::<Vec<_>>();
+        );
 
-        let res_overrides = self.compiler
-            .target_data
-            .resource_binding_overrides
-            .iter()
-            .map(|(loc, res)| spirv_cross::MSLResourceBinding {
-                stage: loc.stage.as_raw(),
-                desc_set: loc.desc_set,
-                binding: loc.binding,
-                msl_buffer: res.resource_id,
-                msl_texture: res.resource_id,
-                msl_sampler: res.resource_id,
-                used_by_shader: res.force_used,
-            })
-            .collect::<Vec<_>>();
+        Ok(())
+    }
 
+    /// Generate MSL shader from the AST.
+    fn compile(&mut self) -> Result<String, ErrorCode> {
+        self.compile_internal()
+    }
+}
+
+impl spirv::Ast<Target> {
+    fn compile_internal(&self) -> Result<String, ErrorCode> {
+        let vat_overrides = &self.compiler.target_data.vertex_attribute_overrides;
+        let res_overrides = &self.compiler.target_data.resource_binding_overrides;
         unsafe {
             let mut shader_ptr = ptr::null();
             check!(sc_internal_compiler_msl_compile(
@@ -191,12 +239,20 @@ impl spirv::Ast<Target> {
                 res_overrides.as_ptr(),
                 res_overrides.len(),
             ));
-            let shader = match CStr::from_ptr(shader_ptr).to_owned().into_string() {
+            let shader = match CStr::from_ptr(shader_ptr).to_str() {
+                Ok(v) => v.to_owned(),
                 Err(_) => return Err(ErrorCode::Unhandled),
-                Ok(v) => v,
             };
             check!(sc_internal_free_pointer(shader_ptr as *mut c_void));
             Ok(shader)
+        }
+    }
+
+    pub fn is_rasterization_enabled(&self) -> Result<bool, ErrorCode> {
+        unsafe {
+            let mut is_disabled = false;
+            check!(sc_internal_compiler_msl_get_is_rasterization_disabled(self.compiler.sc_compiler, &mut is_disabled));
+            Ok(!is_disabled)
         }
     }
 }

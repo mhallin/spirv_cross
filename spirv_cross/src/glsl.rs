@@ -1,14 +1,18 @@
-use {compiler, spirv, ErrorCode};
 use bindings::root::*;
-use std::ptr;
 use std::marker::PhantomData;
+use std::ptr;
+use {compiler, spirv, ErrorCode};
 
 /// A GLSL target.
 #[derive(Debug, Clone)]
 pub enum Target {}
 
+pub struct TargetData {
+    combined_image_samplers_built: bool,
+}
+
 impl spirv::Target for Target {
-    type Data = ();
+    type Data = TargetData;
 }
 
 #[allow(non_snake_case, non_camel_case_types)]
@@ -105,7 +109,9 @@ impl spirv::Parse<Target> for spirv::Ast<Target> {
 
             compiler::Compiler {
                 sc_compiler: compiler,
-                target_data: (),
+                target_data: TargetData {
+                    combined_image_samplers_built: false,
+                },
                 has_been_compiled: false,
             }
         };
@@ -135,11 +141,48 @@ impl spirv::Compile<Target> for spirv::Ast<Target> {
 
     /// Generate GLSL shader from the AST.
     fn compile(&mut self) -> Result<String, ErrorCode> {
-        unsafe {
-            check!(sc_internal_compiler_glsl_build_combined_image_samplers(
-                self.compiler.sc_compiler
-            ));
-        }
+        self.build_combined_image_samplers()?;
         self.compiler.compile()
+    }
+}
+
+impl spirv::Ast<Target> {
+    pub fn build_combined_image_samplers(&mut self) -> Result<(), ErrorCode> {
+        unsafe {
+            if !self.compiler.target_data.combined_image_samplers_built {
+                check!(sc_internal_compiler_glsl_build_combined_image_samplers(
+                    self.compiler.sc_compiler
+                ));
+                self.compiler.target_data.combined_image_samplers_built = true
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn get_combined_image_samplers(
+        &mut self,
+    ) -> Result<Vec<spirv::CombinedImageSampler>, ErrorCode> {
+        self.build_combined_image_samplers()?;
+        unsafe {
+            use std::{ptr, slice};
+            let mut samplers: *const ScCombinedImageSampler = ptr::null();
+            let mut size: usize = 0;
+
+            check!(sc_internal_compiler_glsl_get_combined_image_samplers(
+                self.compiler.sc_compiler,
+                &mut samplers as _,
+                &mut size as _,
+            ));
+
+            Ok(slice::from_raw_parts(samplers, size)
+                .iter()
+                .map(|sc| spirv::CombinedImageSampler {
+                    combined_id: sc.combined_id,
+                    image_id: sc.image_id,
+                    sampler_id: sc.sampler_id,
+                })
+                .collect())
+        }
     }
 }
