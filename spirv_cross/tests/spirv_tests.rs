@@ -102,14 +102,18 @@ fn ast_gets_type_member_types_and_array() {
     let ast = spirv::Ast::<lang::Target>::parse(&module).unwrap();
 
     let uniform_buffers = ast.get_shader_resources().unwrap().uniform_buffers;
+    assert_eq!(ast.get_name(uniform_buffers[0].base_type_id).unwrap(), "uniform_buffer_object");
 
     let is_struct = match ast.get_type(uniform_buffers[0].base_type_id).unwrap() {
         spirv::Type::Struct {
             member_types,
             array,
+            dims,
         } => {
             assert_eq!(member_types.len(), 2);
             assert_eq!(array.len(), 0);
+            assert_eq!(dims.vecsize, 1);
+            assert_eq!(dims.columns, 1);
             true
         }
         _ => false,
@@ -130,9 +134,11 @@ fn ast_gets_array_dimensions() {
         spirv::Type::Struct { member_types, .. } => {
             assert_eq!(member_types.len(), 3);
             let is_float = match ast.get_type(member_types[2]).unwrap() {
-                spirv::Type::Float { array } => {
+                spirv::Type::Float { array, dims } => {
                     assert_eq!(array.len(), 1);
                     assert_eq!(array[0], 3);
+                    assert_eq!(dims.vecsize, 3);
+                    assert_eq!(dims.columns, 1);
                     true
                 }
                 _ => false,

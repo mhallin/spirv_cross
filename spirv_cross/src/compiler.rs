@@ -174,11 +174,35 @@ impl<TTargetData> Compiler<TTargetData> {
                         id,
                         name.as_ptr(),
                     ));
-                },
+                }
                 _ => return Err(ErrorCode::Unhandled),
             }
         }
         Ok(())
+    }
+
+    pub fn get_name(&self, id: u32) -> Result<String, ErrorCode> {
+        let mut name_ptr = ptr::null();
+        let mut size = 0usize;
+
+        let name_slice = unsafe {
+            check!(sc_internal_compiler_get_name(
+                self.sc_compiler,
+                id,
+                &mut name_ptr,
+                &mut size,
+            ));
+
+            if name_ptr.is_null() {
+                return Err(ErrorCode::Unhandled);
+            }
+
+            slice::from_raw_parts(name_ptr as *const u8, size)
+        };
+
+        let name_str = ::std::str::from_utf8(name_slice).map_err(|_| ErrorCode::Unhandled)?;
+
+        Ok(name_str.to_owned())
     }
 
     pub fn unset_decoration(
@@ -349,7 +373,10 @@ impl<TTargetData> Compiler<TTargetData> {
             let member_types =
                 slice::from_raw_parts(raw.member_types, raw.member_types_size).to_vec();
             let array = slice::from_raw_parts(raw.array, raw.array_size).to_vec();
-            let dims = spirv::Dims { vecsize: raw.vecsize, columns: raw.columns };
+            let dims = spirv::Dims {
+                vecsize: raw.vecsize,
+                columns: raw.columns,
+            };
             let result = Type::from_raw(raw.type_, member_types, array, dims);
 
             if raw.member_types_size > 0 {

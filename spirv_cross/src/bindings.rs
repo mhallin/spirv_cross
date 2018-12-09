@@ -1796,6 +1796,15 @@ pub mod root {
          -> root::ScInternalResult;
     }
     extern "C" {
+        pub fn sc_internal_compiler_get_name(compiler:
+                                                 *const root::ScInternalCompilerBase,
+                                             id: u32,
+                                             name:
+                                                 *mut *const ::std::os::raw::c_char,
+                                             size: *mut usize)
+         -> root::ScInternalResult;
+    }
+    extern "C" {
         pub fn sc_internal_compiler_get_entry_points(compiler:
                                                          *const root::ScInternalCompilerBase,
                                                      entry_points:

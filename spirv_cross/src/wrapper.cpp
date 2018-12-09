@@ -195,6 +195,19 @@ extern "C"
         INTERNAL_RESULT(((spirv_cross::Compiler *)compiler)->set_name(id, std::string(name));)
     }
 
+    ScInternalResult sc_internal_compiler_get_name(const ScInternalCompilerBase *compiler, const uint32_t id, const char **name, size_t *size)
+    {
+        INTERNAL_RESULT(
+            do {
+                auto const &comp = *((spirv_cross::Compiler *)compiler);
+                auto const &name_str = comp.get_name(id);
+
+                *name = name_str.c_str();
+                *size = name_str.size();
+            } while(0);
+        )
+    }
+
     ScInternalResult sc_internal_compiler_get_entry_points(const ScInternalCompilerBase *compiler, ScEntryPoint **entry_points, size_t *size)
     {
         INTERNAL_RESULT(

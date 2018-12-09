@@ -245,6 +245,11 @@ where
         self.compiler.set_name(id, name)
     }
 
+    /// Gets a name.
+    pub fn get_name(&self, id: u32) -> Result<String, ErrorCode> {
+        self.compiler.get_name(id)
+    }
+
     /// Unsets a decoration.
     pub fn unset_decoration(
         &mut self,
